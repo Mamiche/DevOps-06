@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metal-slug-deployment
+  labels:
+    app: metal-slug
+spec:
+  replicas: 3  # Réplicas augmentés pour une meilleure scalabilité
+  selector:
+    matchLabels:
+      app: metal-slug
+  template:
+    metadata:
+      labels:
+        app: metal-slug
+    spec:
+      containers:
+      - name: metal-slug-container
+        image: lianshufeng/cloud-game:latest
+        ports:
+        - containerPort: 80
+        resources:  # Limites de ressources ajoutées pour une meilleure stabilité
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
+        livenessProbe:  # Sonde de vivacité pour un meilleur suivi de l’état
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:  # Sonde de disponibilité pour ne recevoir du trafic que lorsqu’il est prêt
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 5
+
